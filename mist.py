@@ -2,6 +2,7 @@ from mistfunctions import blockmac
 from mistfunctions import unblockmac
 from mistfunctions import showblocks
 from cutovermist import mistcutover
+from mistfunctions import assign_device_profile
 import argparse
 
 
@@ -23,6 +24,8 @@ elif mistargs.listblocks:
 elif mistargs.cutover:
     site = mistargs.cutover
     mistcutover(site)
+elif mistargs.assign_device_profile:
+    assign_device_profile()
 else:
     print(r"""
     Available options:
