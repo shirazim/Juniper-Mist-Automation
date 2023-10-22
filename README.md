@@ -1,5 +1,5 @@
 # Juniper-Mist-Automation
-This is a growing collection of scripts used to manage our Mist infrastructure. These scripts currently block/unblock mac addresses.
+This is a growing collection of scripts used to manage our Mist infrastructure. This allows us to block/unblock macs along with assigning device profiles to specific APs.
 
 For this script to work you must do the following:
 
