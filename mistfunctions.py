@@ -150,3 +150,170 @@ def assign_device_profile():
         print('Device profile assigned successfully')
     else:
         print("Device was not assigned successfuly. The MAC address might be problematic")
+
+############################################
+def list_sitegroups():
+    import requests
+    import os
+    import json
+    import sys
+    APIKEY = os.environ.get('MistAPIKey')
+
+    header = {
+        'Authorization': 'Token ' + APIKEY,
+        'Content-Type' : "application/json",
+    }
+
+    site = input('Enter the site number: ')
+    site = str(site).rjust(5,'0')
+
+    allsites = 'https://api.gc1.mist.com/api/v1/orgs/<org ID>/sites'
+    response = requests.get(allsites, headers=header, verify=False)
+
+    output = response.json()
+    name = "0"
+    for line in output:
+        if site in line['name']:
+            name = line['name']
+            groups = line['sitegroup_ids']
+
+    if name == "0":
+        print("Unable to find the specified site")
+        sys.exit()
+    allsitegroups = 'https://api.gc1.mist.com/api/v1/orgs/<org ID>/sitegroups'
+    response = requests.get(allsitegroups, headers=header, verify=False)
+    output = response.json()
+    print(name + ' is assigned to the following site groups:')
+    for group in groups:
+        for line in output:
+            if(line['id'] == group):
+                print(line['name'])
+
+###################################################################
+def add_sitegroup():
+    import requests
+    import os
+    import sys
+    import re
+    import json
+    APIKEY = os.environ.get('MistAPIKey')
+
+    header = {
+        'Authorization': 'Token ' + APIKEY,
+        'Content-Type' : "application/json",
+    }
+
+    site = input('Enter the site number: ')
+    site = str(site).rjust(5,'0')
+
+
+    print("")
+    print('Select a site group (1-9): ')
+    print('(1) - Profile 1`')
+    print('(2) - Profile 2')
+    ChosenProfile = input('Enter your selection: ')
+
+    if ChosenProfile == '1':
+        ProfileID = '2222'
+    elif ChosenProfile == '2':
+        ProfileID = '1111'
+    else:
+        print('The option selected does not exist')
+        sys.exit()
+
+
+    allsites = 'https://api.gc1.mist.com/api/v1/orgs/<org ID>/sites'
+    response = requests.get(allsites, headers=header, verify=False)
+
+    sitecheck = "0"
+    output = response.json()
+    for line in output:
+        if site in line['name']:
+            sitecheck = line['name']
+            groups = line['sitegroup_ids']
+            SiteID = line['id']
+    if sitecheck == "0":
+        print("Unable to find the specified site")
+        sys.exit()
+
+    if isinstance(groups, str):
+        groups = [groups]
+    else:
+        pass
+    groups.append(ProfileID)
+    groups = list(dict.fromkeys(groups))
+    addgroups = {"sitegroup_ids" : groups}
+
+
+    SiteEndpoint = 'https://api.gc1.mist.com/api/v1/sites/' + SiteID
+    response = requests.put(SiteEndpoint, headers=header, verify=False, data=json.dumps(addgroups))
+
+    output = response.json()
+    print('You have successfully updated the site group for site ' + sitecheck)
+
+
+################################################################################
+    
+def remove_sitegroup():
+    import requests
+    import os
+    import sys
+    import re
+    import json
+    APIKEY = os.environ.get('MistAPIKey')
+    header = {
+        'Authorization': 'Token ' + APIKEY,
+        'Content-Type' : "application/json",
+    }
+
+    site = input('Enter the site number: ')
+    site = str(site).rjust(5,'0')
+
+    print("")
+    print('Select a site group (1-9): ')
+    print('profile 1')
+    print('profile 2')
+
+    ChosenProfile = input('Enter your selection: ')
+
+    if ChosenProfile == '1':
+        ProfileID = '2222'
+    elif ChosenProfile == '2':
+        ProfileID = '1111' 
+    else:
+        print('The option selected does not exist')
+        sys.exit()
+
+    allsites = 'https://api.gc1.mist.com/api/v1/orgs/<org ID>/sites'
+    response = requests.get(allsites, headers=header, verify=False)
+
+    sitecheck = "0"
+    output = response.json()
+    for line in output:
+        if site in line['name']:
+            sitecheck = line['name']
+            groups = line['sitegroup_ids']
+            SiteID = line['id']
+    if sitecheck == "0":
+        print("Unable to find the specified site")
+        sys.exit()
+
+    if isinstance(groups, str):
+        groups = [groups]
+    else:
+        pass
+    try:
+        groups.remove(ProfileID)
+    except:
+        print("You cannot remove the site group (" + ProfileID + ") because it is currently not assigned to " + sitecheck)
+        sys.exit()
+    groups = list(dict.fromkeys(groups))
+    addgroups = {"sitegroup_ids" : groups}
+
+
+    SitenEndpoint = 'https://api.gc1.mist.com/api/v1/sites/' + SiteID
+    response = requests.put(SitenEndpoint, headers=header, verify=False, data=json.dumps(addgroups))
+
+    output = response.json()
+    print('You have successfully updated the site group for site ' + sitecheck)
+
